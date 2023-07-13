@@ -3,8 +3,8 @@
 require 'pg'
 
 class Database
-  def intialize
-    @db = PG.connect(dbname: pos)
+  def initialize
+    @db = PG.connect(dbname: "pos")
   end
 
   def disconnect

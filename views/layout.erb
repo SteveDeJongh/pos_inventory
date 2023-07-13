@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+  <head>
+    <title>SD POS</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans">
+    <link rel="stylesheet" href="/stylesheets/whitespace-reset.css">
+    <link rel="stylesheet" href="/stylesheets/application.css">
+  </head>
+
+  <body>
+    <header>
+      <h1>SD Point of Sale</h1>
+      <div class="actions">
+        <a class='add' href='/'>Home</a>
+        <a class='add' href='/invoice/new'>New invoice</a>
+        <a class='add' href='/customer/new'>Add Customer</a>
+        <a class='add' href='/item/new>'>Create Item</a>
+        <a class='add' href='/item/add'>Add Stock</a>
+      </div>
+    </header>
+    <main>
+      <%== yield %>
+    </main>
+  </body>
+</html>

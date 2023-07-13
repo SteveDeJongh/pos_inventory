@@ -17,14 +17,14 @@ body > header {
 
 body > header h1 {
   display: inline-block;
-  width: 38%;
+  width: 28%;
   font-size: 30px;
   color: #dd5f4f; 
 }
 
 body > header .actions {
   display: inline-block;
-  width: 60%;
+  width: 70%;
   text-align: right; 
 }
 
