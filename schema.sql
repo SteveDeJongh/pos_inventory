@@ -27,6 +27,7 @@ CREATE TABLE invoices_items (
 );
 
 ALTER TABLE item ADD CHECK (price > cost);
+ALTER TABLE item ALTER COLUMN qty SET DEFAULT 0;
 
 INSERT INTO customer (name) VALUES ('John'), ('Steve'), ('Ralf');
 INSERT INTO item (sku, description, price, cost, qty)
