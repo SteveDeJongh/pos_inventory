@@ -49,6 +49,7 @@ def new_item_validation(new_item, existing_items)
 end
 
 get '/' do
+  @stock = @storage.all_items.values
   erb :home, layout: :layout
 end
 
@@ -102,3 +103,23 @@ end
 # not_found do
 #   "Ruh roh, that wasn't found!"
 # end
+
+helpers do
+  def products_in_rows(products)
+    products.map do |row|
+      "<tr>
+        <td>#{row[0]}</td>
+        <td>#{row[1]}</td>
+        <td>#{row[2]}</td>
+        <td>#{row[3]}</td>
+        <td>#{row[4]}</td>
+        <td>#{row[5]}</td>
+        <td>#{row[6]}</td>
+      </tr>"
+    end.join
+  end
+
+  def product_names
+
+  end
+end
