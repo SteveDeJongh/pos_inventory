@@ -1,8 +1,10 @@
 <h3>Add Stock To An Existing Product</h3>
 <form action='/item/add' method='post'>
-  <label for='item_name'>Add stock to:</label>
-  <input type='text'/>
-  <datalist>
-    <option value='product_name'>product name</option>
-  </datalist>
+  <label for='item_name'>Add stock to:
+    <input type='text' name='item_name' placeholder='product name'>
+  </label>
+  <label for='quantity'>Quantity:
+    <input type='text' name='quantity' placeholder='0'>
+  </label>
+  <button type='submit'>Add Stock</button>
 </form>

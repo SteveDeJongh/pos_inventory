@@ -48,6 +48,12 @@ def new_item_validation(new_item, existing_items)
   end
 end
 
+def exists?(item, all_items)
+  if !all_items.include?(item)
+    "No matching item found."
+  end
+end
+
 get '/' do
   @stock = @storage.all_items.values
   erb :home, layout: :layout
@@ -98,6 +104,25 @@ end
 
 get '/item/add' do
   erb :add_item, layout: :layout
+end
+
+
+post '/item/add' do
+  item = params[:item_name]
+  quantity = params[:quantity].to_i
+  id = @storage.find_id(item).values.flatten
+  
+  if id.empty?
+    session[:error] = "No matching product found."
+    redirect '/item/add'
+  elsif quantity <= 0
+    session[:error] = "Quantity must be 1 or greater."
+    redirect '/item/add'  
+  else
+    @storage.add_stock(id[0].to_i, quantity)
+    session[:success] = "Stock added to #{item}."
+    redirect '/'
+  end
 end
 
 # not_found do

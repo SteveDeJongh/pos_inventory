@@ -48,4 +48,20 @@ class Database
 
     query(sql, *data)
   end
+
+  def find_id(description)
+    sql = <<~SQL
+      SELECT id from item WHERE description = $1;
+    SQL
+  
+    query(sql, description)
+  end
+
+  def add_stock(id, quantity)
+    sql = <<~SQL
+      UPDATE item SET qty = (qty + $2) WHERE id = $1
+    SQL
+
+    query(sql, id, quantity)
+  end
 end
