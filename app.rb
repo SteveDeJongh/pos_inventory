@@ -68,7 +68,6 @@ end
 
 post '/customer/new' do
   existing_customers = @storage.all_customers.flatten
-  # binding.pry
   @name = params[:customer_name]
   error = new_customer_name_validation(@name, existing_customers)
   if error
@@ -128,15 +127,12 @@ post '/sortitems' do
   redirect '/'
 end
 
-# not_found do
-#   "Ruh roh, that wasn't found!"
-# end
-
 helpers do
   def sort_items(items)
+    current_sort = session[:sort_order]
     sort_options = { id: 0, sku: 1, description: 2, cost: 3,
                      retail: 4, stock: 5, sold: 6 }
-    sortindex = sort_options[session[:sort_order].to_sym]
+    sortindex = current_sort ? sort_options[current_sort.to_sym] : 1
     items.sort_by { |item| item[sortindex] }
   end
 

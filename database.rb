@@ -26,7 +26,7 @@ class Database
 
   def all_customers
     sql = <<~SQL
-      SELECT id, name FROM customer;
+      SELECT * FROM customer;
     SQL
 
     query(sql).values

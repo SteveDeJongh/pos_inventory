@@ -13,27 +13,29 @@
   <button type='submit'>Sort</button>
 </form>
 
-<table>
-  <tr>
-    <th>ID</th>
-    <th>Sku</th>
-    <th>Description</th>
-    <th>Cost</th>
-    <th>Retail</th>
-    <th>Stock</th>
-    <th>Sold</th>
-  </tr>
-  <%== items_in_rows(@stock) %>
-</table>
+<div>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Sku</th>
+      <th>Description</th>
+      <th>Cost</th>
+      <th>Retail</th>
+      <th>Stock</th>
+      <th>Sold</th>
+    </tr>
+    <%== items_in_rows(@stock) %>
+  </table>
+</div>
 
-<h3>Customers:</h3>
-<%# <p>Sort by:</p>
-<form action='/sortcustomers> %>
+<div>
+  <h3>Customers:</h3>
 
-<table>
-  <tr>
-    <th>id</th>
-    <th>Name</th>
-  </tr>
-  <%== customers_in_rows(@customers) %>
-</table>
+  <table>
+    <tr>
+      <th>id</th>
+      <th>Name</th>
+    </tr>
+    <%== customers_in_rows(@customers) %>
+  </table>
+</div>
