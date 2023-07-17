@@ -55,7 +55,8 @@ def exists?(item, all_items)
 end
 
 get '/' do
-  @stock = @storage.all_items.values
+  @stock = @storage.all_items
+  @customers = @storage.all_customers
   erb :home, layout: :layout
 end
 
@@ -68,7 +69,7 @@ get '/customer/new' do
 end
 
 post '/customer/new' do
-  existing_customers = @storage.all_customers
+  existing_customers = @storage.all_customers.flatten
   # binding.pry
   @name = params[:customer_name]
   error = new_customer_name_validation(@name, existing_customers)
@@ -87,8 +88,8 @@ get '/item/new' do
 end
 
 post '/item/new' do
-  existing_items = @storage.all_items.values.flatten
-  @data = [params[:sku], params[:name], params[:cost], params[:retail]]
+  existing_items = @storage.all_items.flatten
+  @data = [params[:sku].to_i, params[:name], params[:cost], params[:retail]]
 
   error = new_item_validation(@data, existing_items)
   
@@ -162,7 +163,12 @@ helpers do
     end.join
   end
 
-  def product_names
-
+  def customers_in_rows(customers)
+    customers.map do |customer|
+      "<tr>
+        <td>#{customer[0]}</td>
+        <td>#{customer[1]}</td>
+      </tr>"
+    end.join
   end
 end

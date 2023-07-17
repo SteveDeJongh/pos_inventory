@@ -26,10 +26,10 @@ class Database
 
   def all_customers
     sql = <<~SQL
-      SELECT name FROM customer;
+      SELECT id, name FROM customer;
     SQL
 
-    query(sql).values.flatten
+    query(sql).values
   end
 
   def all_items
@@ -37,7 +37,7 @@ class Database
       SELECT * FROM item;
     SQL
 
-    query(sql)
+    query(sql).map { |item| tuple_to_item_array(item) }
   end
 
   def add_item(data)
@@ -63,5 +63,12 @@ class Database
     SQL
 
     query(sql, id, quantity)
+  end
+
+  private
+
+  def tuple_to_item_array(item)
+    [item['id'].to_i, item['sku'].to_i, item['description'].capitalize, item['cost'].to_f, 
+    item['price'].to_f, item['qty'].to_i, item['qty_sold'].to_i]
   end
 end

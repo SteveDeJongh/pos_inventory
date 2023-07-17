@@ -25,3 +25,15 @@
   </tr>
   <%== items_in_rows(@stock) %>
 </table>
+
+<h3>Customers:</h3>
+<%# <p>Sort by:</p>
+<form action='/sortcustomers> %>
+
+<table>
+  <tr>
+    <th>id</th>
+    <th>Name</th>
+  </tr>
+  <%== customers_in_rows(@customers) %>
+</table>
