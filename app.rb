@@ -6,7 +6,7 @@ require 'pry'
 
 configure do
   enable :sessions
-  set :erb, :escape_html => true
+  set :erb, escape_html: true
 end
 
 configure(:development) do
@@ -49,9 +49,7 @@ def new_item_validation(new_item, existing_items)
 end
 
 def exists?(item, all_items)
-  if !all_items.include?(item)
-    "No matching item found."
-  end
+  return "No matching item found." unless all_items.include?(item)
 end
 
 get '/' do
@@ -80,7 +78,7 @@ post '/customer/new' do
     @storage.add_customer(@name)
     session[:success] = "Customer #{@name} has been created."
     redirect '/'
-  end  
+  end
 end
 
 get '/item/new' do
@@ -92,7 +90,7 @@ post '/item/new' do
   @data = [params[:sku].to_i, params[:name], params[:cost], params[:retail]]
 
   error = new_item_validation(@data, existing_items)
-  
+
   if error
     session[:error] = error
     redirect '/item/new'
@@ -107,7 +105,6 @@ get '/item/add' do
   erb :add_item, layout: :layout
 end
 
-
 post '/item/add' do
   item = params[:item_name]
   quantity = params[:quantity].to_i
@@ -118,7 +115,7 @@ post '/item/add' do
     redirect '/item/add'
   elsif quantity <= 0
     session[:error] = "Quantity must be 1 or greater."
-    redirect '/item/add'  
+    redirect '/item/add'
   else
     @storage.add_stock(id[0].to_i, quantity)
     session[:success] = "Stock added to #{item}."
@@ -137,16 +134,10 @@ end
 
 helpers do
   def sort_items(items)
-    sortindex = case session[:sort_order]
-                  when 'id' then 0
-                  when 'sku' then 1
-                  when 'description' then 2
-                  when 'cost' then 3
-                  when 'retail' then 4
-                  when 'stock' then 5
-                  when 'sold' then 6
-                end
-    items.sort_by { |item| item[sortindex]}
+    sort_options = { id: 0, sku: 1, description: 2, cost: 3,
+                     retail: 4, stock: 5, sold: 6 }
+    sortindex = sort_options[session[:sort_order].to_sym]
+    items.sort_by { |item| item[sortindex] }
   end
 
   def items_in_rows(items)

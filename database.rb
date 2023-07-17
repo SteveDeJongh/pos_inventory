@@ -53,7 +53,7 @@ class Database
     sql = <<~SQL
       SELECT id from item WHERE description = $1;
     SQL
-  
+
     query(sql, description)
   end
 
@@ -68,7 +68,8 @@ class Database
   private
 
   def tuple_to_item_array(item)
-    [item['id'].to_i, item['sku'].to_i, item['description'].capitalize, item['cost'].to_f, 
-    item['price'].to_f, item['qty'].to_i, item['qty_sold'].to_i]
+    [item['id'].to_i, item['sku'].to_i, item['description'].capitalize,
+     item['cost'].to_f, item['price'].to_f, item['qty'].to_i,
+     item['qty_sold'].to_i]
   end
 end
