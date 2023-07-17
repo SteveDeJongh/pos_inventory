@@ -20,11 +20,15 @@
     </header>
 
     <% if session[:error] %>
-      <p><%= session.delete(:error) %>
+      <div class='flash error'>
+        <p><%= session.delete(:error) %>
+      </div>
     <% end %>
 
     <% if session[:success] %>
-      <p><%= session.delete(:success) %>
+      <div class='flash success'>
+        <p><%= session.delete(:success) %>
+      </div>
     <% end %>
     
     <main>

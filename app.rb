@@ -111,7 +111,7 @@ post '/item/add' do
   item = params[:item_name]
   quantity = params[:quantity].to_i
   id = @storage.find_id(item).values.flatten
-  
+
   if id.empty?
     session[:error] = "No matching product found."
     redirect '/item/add'
@@ -125,13 +125,31 @@ post '/item/add' do
   end
 end
 
+post '/sortitems' do
+  session[:sort_order] = params[:sort_order]
+  redirect '/'
+end
+
 # not_found do
 #   "Ruh roh, that wasn't found!"
 # end
 
 helpers do
-  def products_in_rows(products)
-    products.map do |row|
+  def sort_items(items)
+    sortindex = case session[:sort_order]
+                  when 'id' then 0
+                  when 'sku' then 1
+                  when 'description' then 2
+                  when 'cost' then 3
+                  when 'retail' then 4
+                  when 'stock' then 5
+                  when 'sold' then 6
+                end
+    items.sort_by { |item| item[sortindex]}
+  end
+
+  def items_in_rows(items)
+    sort_items(items).map do |row|
       "<tr>
         <td>#{row[0]}</td>
         <td>#{row[1]}</td>

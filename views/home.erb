@@ -1,4 +1,17 @@
 <h3>All Products</h3>
+<p>Sort by:</p>
+<form action='/sortitems' method='post'>
+  <select name='sort_order'>
+    <option value='id'>ID</option>
+    <option value='sku'>Sku</option>
+    <option value='description'>Description</option>
+    <option value='cost'>Cost</option>
+    <option value='retail'>Retail</option>
+    <option value='stock'>Stock</option>
+    <option value='sold'>QTY Sold</option>
+  </select>
+  <button type='submit'>Sort</button>
+</form>
 
 <table>
   <tr>
@@ -10,5 +23,5 @@
     <th>Stock</th>
     <th>Sold</th>
   </tr>
-  <%== products_in_rows(@stock) %>
+  <%== items_in_rows(@stock) %>
 </table>
