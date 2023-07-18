@@ -18,8 +18,17 @@ Customers:
 Home page:
 Options to: Add new customer, create new invoice, add inventory
 
-Add customer page:
-
 Create new invoice page:
+invoice should be generated with: -customer info, product info,
+Invoice should generate a piece count, and total $ amount
+If item is not in stock, an error should be raised
+if item does not exist, an error sohuld be raised
+
+Posting invoice:
+create an invoice that reference each item
+remove items from stock that are on that invoice
+
+
+Add customer page:
 
 Add inventory page:

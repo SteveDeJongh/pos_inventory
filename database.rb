@@ -29,7 +29,7 @@ class Database
       SELECT * FROM customer;
     SQL
 
-    query(sql).values
+    query(sql)
   end
 
   def all_items
@@ -63,6 +63,33 @@ class Database
     SQL
 
     query(sql, id, quantity)
+  end
+
+  def all_invoices
+    sql = <<~SQL
+      SELECT invoice.id, min(customer.name) AS customer, 
+        string_agg(item.description, ', ') AS items, sum(price) AS total
+        FROM invoice 
+        JOIN invoices_items ON invoices_items.invoice_id = invoice.id
+        JOIN item ON invoices_items.item_id = item.id
+        JOIN customer ON invoice.customer_id = customer.id
+        GROUP BY invoice.id;
+      SQL
+  
+    query(sql)
+  end
+
+  def retrieve_invoice(id)
+    sql = <<~SQL
+    SELECT invoice.id, customer.name, item.description, price
+    FROM invoice 
+    JOIN invoices_items ON invoices_items.invoice_id = invoice.id
+    JOIN item ON invoices_items.item_id = item.id
+    JOIN customer ON invoice.customer_id = customer.id
+    WHERE invoice.id = $1;
+    SQL
+
+    query(sql, id)
   end
 
   private

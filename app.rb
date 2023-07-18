@@ -24,13 +24,13 @@ after do
   @storage.disconnect
 end
 
-def new_customer_name_validation(name, existing_names)
-  if name.nil?
+def new_customer_name_validation(new_name, existing_customer_names)
+  if new_name.nil?
     "Please enter a valid name."
-  elsif !(1..100).cover?(name.length)
+  elsif !(1..100).cover?(new_name.length)
     "Name must be less that 100 characters."
-  elsif existing_names.any? { |x| x.downcase == name.downcase }
-    "#{name} already exists!"
+  elsif existing_customer_names.any? { |name| name.downcase == new_name.downcase }
+    "#{new_name} already exists!"
   end
 end
 
@@ -52,9 +52,12 @@ def exists?(item, all_items)
   return "No matching item found." unless all_items.include?(item)
 end
 
+##### Routes #####
+
 get '/' do
   @stock = @storage.all_items
   @customers = @storage.all_customers
+  @invoices = @storage.all_invoices
   erb :home, layout: :layout
 end
 
@@ -67,9 +70,9 @@ get '/customer/new' do
 end
 
 post '/customer/new' do
-  existing_customers = @storage.all_customers.flatten
+  existing_customer_names = @storage.all_customers.column_values(1)
   @name = params[:customer_name]
-  error = new_customer_name_validation(@name, existing_customers)
+  error = new_customer_name_validation(@name, existing_customer_names)
   if error
     session[:error] = error
     redirect '/customer/new'
@@ -127,6 +130,33 @@ post '/sortitems' do
   redirect '/'
 end
 
+get '/newinvoice' do
+
+end
+
+post '/newinvoice' do
+
+end
+
+def invoice_totals(invoice)
+  items = 0
+  sum = 0
+  invoice.each do |line|
+    items += 1
+    sum += line[3].to_i
+  end
+  [items, sum]
+end
+
+get '/invoice/:id/' do
+  invoice_id = params[:id].to_i
+  @invoice_data = @storage.retrieve_invoice(invoice_id).values
+  @invoice_total = invoice_totals(@invoice_data)
+  erb :view_invoice, layout: :layout
+end
+
+##### View Helpers #####
+
 helpers do
   def sort_items(items)
     current_sort = session[:sort_order]
@@ -151,11 +181,33 @@ helpers do
   end
 
   def customers_in_rows(customers)
-    customers.map do |customer|
+    customers.values.map do |customer|
       "<tr>
         <td>#{customer[0]}</td>
         <td>#{customer[1]}</td>
       </tr>"
     end.join
   end
+
+  def invoices_in_rows(invoices)
+    invoices.map do |row|
+      "<tr>
+      <th><a href='/invoice/#{row["id"]}/'> #{row["id"]}</a></th>
+      <th>#{row["customer"]}</th>
+      <th>#{row["items"]}</th>
+      <th>#{row["total"]}</th>
+      </tr>"
+    end.join
+  end
+
+  def display_invoice(invoice_data, invoice_totals)
+    invoice_data.map.with_index do |line, idx|
+      "<tr>
+      <th>#{idx+1}</th>
+      <th>#{line[2]}</th>
+      <th>#{line[3]}</th>
+      <tr>"
+    end.join << "<tr><th>Totals</th><th>#{invoice_totals[0]}</th><th>#{invoice_totals[1]}</th></th>"
+  end
+
 end
