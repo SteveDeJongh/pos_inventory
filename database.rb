@@ -32,6 +32,38 @@ class Database
     query(sql)
   end
 
+  def get_customer_id(name)
+    sql = <<~SQL
+      SELECT id FROM customer WHERE name = $1;
+    SQL
+
+    query(sql, name).values.flatten[0].to_i
+  end
+
+  def create_invoice_and_return_id(cust_id, total_cost)
+    sql = <<~SQL
+      INSERT INTO invoice (customer_id, total_cost)
+      VALUES ($1, $2);
+    SQL
+
+    query(sql, cust_id, total_cost)
+
+    sql2 = <<~SQL
+      SELECT max(id) FROM invoice;
+    SQL
+
+    query(sql2).values.flatten[0]
+  end
+
+  def add_invoice_item(invoice_id, item_id)
+    sql = <<~SQL
+      INSERT INTO invoices_items (invoice_id, item_id)
+      VALUES ($1, $2);
+    SQL
+    
+    query(sql, invoice_id, item_id)
+  end
+
   def all_items
     sql = <<~SQL
       SELECT * FROM item;

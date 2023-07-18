@@ -140,12 +140,13 @@ end
 
 def get_product_ids_array(items)
   items.map do |sku|
+    binding.pry
     if sku == ''
       next
-    elsif sku_doesnt_exist?(sku, @storage.all_items.flatten)
+    elsif sku_doesnt_exist?(sku.to_i, @storage.all_items.flatten)
       "No matching item found for #{sku}."
     else
-      @storage.find_id_from_sku(sku)[0]['sku'].to_i
+      @storage.find_id_from_sku(sku)[0]['id'].to_i
     end
   end
 end
@@ -165,29 +166,19 @@ end
 
 post '/newinvoice' do
   customer_info = params[:customer_name]
+  customer_id = @storage.get_customer_id(params[:customer_name])
   @all_customers = @storage.all_customers
   items = [params[:sku1], params[:sku2], params[:sku3], params[:sku4]]
   product_ids = get_product_ids_array(items)
   order_total = get_new_invoice_total(items)
   binding.pry
-  # if items.all? { |x| x == nil}
-  #   session[:error] = "No valid products."
-  #   erb :new_invoice, layout: :layout    
-  # else
-
-    
-  # end
-
-  # end
+  invoice_id = @storage.create_invoice_and_return_id(customer_id, order_total[0])
+  product_ids.each do |id|
+    if id.to_s.to_i == id
+      @storage.add_invoice_item(invoice_id, id)
+    end
+  end
   redirect '/'
-  # if customer_doesnt_exist?(customer_info, @all_customers)
-  #   session[:error] = "Customer does not exist."
-  #   redirect '/newinvoice'
-  # elsif
-    
-  # else
-
-  # end
 end
 
 def invoice_totals(invoice)
