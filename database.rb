@@ -40,6 +40,21 @@ class Database
     query(sql).map { |item| tuple_to_item_array(item) }
   end
 
+  def all_items_and_stock
+    sql = <<~SQL
+      SELECT sku, cost, price FROM item;
+    SQL
+
+    result = {}
+
+    query(sql).each do |item|
+       result[item["sku"].to_i] = { cost: item["cost"].to_i,
+                                    price: item["price"].to_i,
+                                    stock: item["stock"].to_i }
+    end
+    result
+  end
+
   def add_item(data)
     sql = <<~SQL
       INSERT INTO item (sku, description, cost, price)
@@ -55,6 +70,14 @@ class Database
     SQL
 
     query(sql, description)
+  end
+
+  def find_id_from_sku(sku)
+    sql = <<~SQL
+      SELECT id FROM item WHERE sku = $1;
+    SQL
+
+    query(sql, sku)
   end
 
   def add_stock(id, quantity)

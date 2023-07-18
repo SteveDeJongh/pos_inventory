@@ -48,8 +48,12 @@ def new_item_validation(new_item, existing_items)
   end
 end
 
-def exists?(item, all_items)
+def sku_doesnt_exist?(item, all_items)
   return "No matching item found." unless all_items.include?(item)
+end
+
+def customer_doesnt_exist?(customer_name, all_customers)
+  return "No matching customer found." unless all_customers.include?(customer_name)
 end
 
 ##### Routes #####
@@ -131,11 +135,59 @@ post '/sortitems' do
 end
 
 get '/newinvoice' do
+  erb :new_invoice, layout: :layout
+end
 
+def get_product_ids_array(items)
+  items.map do |sku|
+    if sku == ''
+      next
+    elsif sku_doesnt_exist?(sku, @storage.all_items.flatten)
+      "No matching item found for #{sku}."
+    else
+      @storage.find_id_from_sku(sku)[0]['sku'].to_i
+    end
+  end
+end
+
+def get_new_invoice_total(items)
+  all_item_info = @storage.all_items_and_stock
+  total_cost = 0
+  total_retail = 0
+  items.each do |sku|
+    if sku.to_i.to_s == sku
+      total_cost += all_item_info[sku.to_i][:cost]
+      total_retail += all_item_info[sku.to_i][:price]
+    end
+  end
+  [total_cost, total_retail]
 end
 
 post '/newinvoice' do
+  customer_info = params[:customer_name]
+  @all_customers = @storage.all_customers
+  items = [params[:sku1], params[:sku2], params[:sku3], params[:sku4]]
+  product_ids = get_product_ids_array(items)
+  order_total = get_new_invoice_total(items)
+  binding.pry
+  # if items.all? { |x| x == nil}
+  #   session[:error] = "No valid products."
+  #   erb :new_invoice, layout: :layout    
+  # else
 
+    
+  # end
+
+  # end
+  redirect '/'
+  # if customer_doesnt_exist?(customer_info, @all_customers)
+  #   session[:error] = "Customer does not exist."
+  #   redirect '/newinvoice'
+  # elsif
+    
+  # else
+
+  # end
 end
 
 def invoice_totals(invoice)

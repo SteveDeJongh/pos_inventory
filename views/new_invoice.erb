@@ -1,16 +1,22 @@
-<form action='/invoice/new' method='post'>
-<dl>
-  <dt>New Invoice</dt>
-    <input type='text' name='customer_id'>
-  <dt> </dt>
-  <dt> </dt>
-  <dt> </dt>
-  <dt> </dt>
-  
-</dl>
-  
-  <fieldset class='actions'>
-    <input type='submit' value='Create Invoice'>
-    <a href='/'>Cancel</a>
-  </fieldset>
+<h3>New Invoice</h3>
+<form action='/newinvoice' method='post'>
+  <label for='customer_name'>Customer Name:
+    <input type='text' name='customer_name' placeholder='Customer name'>
+  </label>
+  <label for='sku1'>Sku:
+    <input type='text' name='sku1'>
+  </label>
+  <label for='sku2'>Sku:
+    <input type='text' name='sku2'>
+  </label>
+  <label for='sku3'>Sku:
+    <input type='text' name='sku3'>
+  </label>
+  <label for='sku4'>Sku:
+    <input type='text' name='sku4'>
+  </label>
+  <label for='sku5'>Sku:
+    <input type='text' name='sku5'>
+  </label>
+  <button type="submit">Create invoice</button>
 </form>
