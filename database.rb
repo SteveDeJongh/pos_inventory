@@ -68,8 +68,14 @@ class Database
       INSERT INTO invoices_items (invoice_id, item_id)
       VALUES ($1, $2);
     SQL
+    sql2 = <<~SQL
+    UPDATE item SET qty = (qty - 1),
+    qty_sold = (qty_sold + 1)
+    WHERE item = $1;
+    SQL
 
     query(sql, invoice_id, item_id)
+    query(sql2, item_id)
   end
 
   def all_items

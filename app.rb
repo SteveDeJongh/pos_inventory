@@ -56,6 +56,41 @@ def customer_doesnt_exist?(customer_name, all_customers)
   return "#{customer_name} not found." unless all_customers.include?(customer_name)
 end
 
+def product_ids_array(items)
+  items.map do |sku|
+    if sku == ''
+      next
+    elsif sku_doesnt_exist?(sku.to_i, @storage.all_items.flatten)
+      "No matching item found for #{sku}."
+    else
+      @storage.find_id_from_sku(sku)[0]['id'].to_i
+    end
+  end
+end
+
+def new_invoice_items_total(items)
+  all_item_info = @storage.all_items_and_stock
+  total_cost = 0
+  total_retail = 0
+  items.each do |sku|
+    if sku.to_i.to_s == sku
+      total_cost += all_item_info[sku.to_i][:cost]
+      total_retail += all_item_info[sku.to_i][:price]
+    end
+  end
+  [total_cost, total_retail]
+end
+
+def invoice_totals(invoice)
+  items = 0
+  sum = 0
+  invoice.each do |line|
+    items += 1
+    sum += line[3].to_i
+  end
+  [items, sum]
+end
+
 ##### Routes #####
 
 get '/' do
@@ -138,31 +173,6 @@ get '/newinvoice' do
   erb :new_invoice, layout: :layout
 end
 
-def product_ids_array(items)
-  items.map do |sku|
-    if sku == ''
-      next
-    elsif sku_doesnt_exist?(sku.to_i, @storage.all_items.flatten)
-      "No matching item found for #{sku}."
-    else
-      @storage.find_id_from_sku(sku)[0]['id'].to_i
-    end
-  end
-end
-
-def new_invoice_items_total(items)
-  all_item_info = @storage.all_items_and_stock
-  total_cost = 0
-  total_retail = 0
-  items.each do |sku|
-    if sku.to_i.to_s == sku
-      total_cost += all_item_info[sku.to_i][:cost]
-      total_retail += all_item_info[sku.to_i][:price]
-    end
-  end
-  [total_cost, total_retail]
-end
-
 post '/newinvoice' do
   customer_name = params[:customer_name]
   customer_id = @storage.get_customer_id(customer_name)
@@ -175,8 +185,8 @@ post '/newinvoice' do
             then "#{customer_name} not found."
           when product_ids.select { |x| x != '' && x.class != Integer && !x.nil? }[0]
             then "Product does not exist."
-          when stock_error
-            then "Product has not stock!"
+          # when stock_error
+          #   then "Product has not stock!"
           end
   
   if error
@@ -194,16 +204,6 @@ post '/newinvoice' do
     session[:success] = "Invoice created."
     redirect '/'
   end
-end
-
-def invoice_totals(invoice)
-  items = 0
-  sum = 0
-  invoice.each do |line|
-    items += 1
-    sum += line[3].to_i
-  end
-  [items, sum]
 end
 
 get '/invoice/:id/' do
