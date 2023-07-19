@@ -150,7 +150,7 @@ class Database
 
   def retrieve_invoice(id)
     sql = <<~SQL
-    SELECT invoice.id, customer.name, item.description, price
+    SELECT invoice.id, customer.name, item.description, price, item.id
     FROM invoice
     JOIN invoices_items ON invoices_items.invoice_id = invoice.id
     JOIN item ON invoices_items.item_id = item.id
@@ -159,6 +159,29 @@ class Database
     SQL
 
     query(sql, id)
+  end
+
+  def delete_invoice(invoice_id)
+    sql = <<~SQL
+    DELETE FROM invoices_items WHERE invoice_id = $1;
+    SQL
+    sql2 = <<~SQL
+    DELETE FROM invoice WHERE id = $1;
+    SQL
+    query(sql, invoice_id)
+    query(sql2, invoice_id)
+  end
+
+  def return_item_to_stock(item_ids)
+    sql = <<~SQL
+    UPDATE item SET qty = (qty + 1),
+    qty_sold = (qty_sold - 1)
+    WHERE id = ($1);
+    SQL
+    binding.pry
+    item_ids.each do |id|
+      query(sql, id)
+    end
   end
 
   private

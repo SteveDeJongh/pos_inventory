@@ -211,6 +211,16 @@ get '/invoice/:id/' do
   erb :view_invoice, layout: :layout
 end
 
+get '/invoice/:id/delete' do
+  invoice_id = params[:id].to_i
+  invoice_data = @storage.retrieve_invoice(invoice_id).values
+  item_ids = invoice_data.map { |line| line[4].to_i }
+  @storage.return_item_to_stock(item_ids)
+  @storage.delete_invoice(invoice_id)
+  session[:succcess] = "Invoice has been deleted."
+  redirect '/'
+end
+
 ##### View Helpers #####
 
 helpers do

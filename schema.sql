@@ -30,11 +30,11 @@ ALTER TABLE item ADD CHECK (price > cost);
 ALTER TABLE item ALTER COLUMN qty SET DEFAULT 0;
 
 INSERT INTO customer (name) VALUES ('John'), ('Steve'), ('Ralf');
-INSERT INTO item (sku, description, price, cost, qty)
-VALUES (1111, 'Ball', 10, 5, 1),
-       (2222, 'Bat', 20, 7.50, 2),
-       (3333, 'Glove', 15, 10, 3),
-       (4444, 'Chalk', 5.50, 2.50, 6);
+INSERT INTO item (sku, description, price, cost, qty, qty_sold)
+VALUES (1111, 'Ball', 10, 5, 1, 1),
+       (2222, 'Bat', 20, 7.50, 2, 2),
+       (3333, 'Glove', 15, 10, 3, 1),
+       (4444, 'Chalk', 5.50, 2.50, 6, 1);
 
 INSERT INTO invoice (customer_id, total_cost)
 VALUES (1, 30),
