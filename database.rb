@@ -71,7 +71,7 @@ class Database
     sql2 = <<~SQL
     UPDATE item SET qty = (qty - 1),
     qty_sold = (qty_sold + 1)
-    WHERE item = $1;
+    WHERE id = ($1);
     SQL
 
     query(sql, invoice_id, item_id)

@@ -185,8 +185,6 @@ post '/newinvoice' do
             then "#{customer_name} not found."
           when product_ids.select { |x| x != '' && x.class != Integer && !x.nil? }[0]
             then "Product does not exist."
-          # when stock_error
-          #   then "Product has not stock!"
           end
   
   if error
