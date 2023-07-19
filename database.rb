@@ -32,6 +32,14 @@ class Database
     query(sql)
   end
 
+  def all_customer_names
+    sql = <<~SQL
+      SELECT name FROM customer;
+    SQL
+
+    query(sql)
+  end
+
   def get_customer_id(name)
     sql = <<~SQL
       SELECT id FROM customer WHERE name = $1;
@@ -60,7 +68,7 @@ class Database
       INSERT INTO invoices_items (invoice_id, item_id)
       VALUES ($1, $2);
     SQL
-    
+
     query(sql, invoice_id, item_id)
   end
 
@@ -80,9 +88,9 @@ class Database
     result = {}
 
     query(sql).each do |item|
-       result[item["sku"].to_i] = { cost: item["cost"].to_i,
-                                    price: item["price"].to_i,
-                                    stock: item["stock"].to_i }
+      result[item["sku"].to_i] = { cost: item["cost"].to_i,
+                                   price: item["price"].to_i,
+                                   stock: item["stock"].to_i }
     end
     result
   end
@@ -122,22 +130,22 @@ class Database
 
   def all_invoices
     sql = <<~SQL
-      SELECT invoice.id, min(customer.name) AS customer, 
+      SELECT invoice.id, min(customer.name) AS customer,
         string_agg(item.description, ', ') AS items, sum(price) AS total
-        FROM invoice 
+        FROM invoice
         JOIN invoices_items ON invoices_items.invoice_id = invoice.id
         JOIN item ON invoices_items.item_id = item.id
         JOIN customer ON invoice.customer_id = customer.id
         GROUP BY invoice.id;
       SQL
-  
+
     query(sql)
   end
 
   def retrieve_invoice(id)
     sql = <<~SQL
     SELECT invoice.id, customer.name, item.description, price
-    FROM invoice 
+    FROM invoice
     JOIN invoices_items ON invoices_items.invoice_id = invoice.id
     JOIN item ON invoices_items.item_id = item.id
     JOIN customer ON invoice.customer_id = customer.id

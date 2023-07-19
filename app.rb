@@ -53,7 +53,7 @@ def sku_doesnt_exist?(item, all_items)
 end
 
 def customer_doesnt_exist?(customer_name, all_customers)
-  return "No matching customer found." unless all_customers.include?(customer_name)
+  return "#{customer_name} not found." unless all_customers.include?(customer_name)
 end
 
 ##### Routes #####
@@ -138,9 +138,8 @@ get '/newinvoice' do
   erb :new_invoice, layout: :layout
 end
 
-def get_product_ids_array(items)
+def product_ids_array(items)
   items.map do |sku|
-    binding.pry
     if sku == ''
       next
     elsif sku_doesnt_exist?(sku.to_i, @storage.all_items.flatten)
@@ -151,7 +150,7 @@ def get_product_ids_array(items)
   end
 end
 
-def get_new_invoice_total(items)
+def new_invoice_items_total(items)
   all_item_info = @storage.all_items_and_stock
   total_cost = 0
   total_retail = 0
@@ -165,20 +164,36 @@ def get_new_invoice_total(items)
 end
 
 post '/newinvoice' do
-  customer_info = params[:customer_name]
-  customer_id = @storage.get_customer_id(params[:customer_name])
-  @all_customers = @storage.all_customers
+  customer_name = params[:customer_name]
+  customer_id = @storage.get_customer_id(customer_name)
   items = [params[:sku1], params[:sku2], params[:sku3], params[:sku4]]
-  product_ids = get_product_ids_array(items)
-  order_total = get_new_invoice_total(items)
-  binding.pry
-  invoice_id = @storage.create_invoice_and_return_id(customer_id, order_total[0])
-  product_ids.each do |id|
-    if id.to_s.to_i == id
-      @storage.add_invoice_item(invoice_id, id)
+  customer_names = @storage.all_customer_names.values.flatten
+  product_ids = product_ids_array(items)
+
+  error = case
+          when customer_doesnt_exist?(customer_name, customer_names)
+            then "#{customer_name} not found."
+          when product_ids.select { |x| x != '' && x.class != Integer && !x.nil? }[0]
+            then "Product does not exist."
+          when stock_error
+            then "Product has not stock!"
+          end
+  
+  if error
+    session[:error] = error
+    redirect '/newinvoice'
+  else
+    product_ids = product_ids_array(items)
+    order_total = new_invoice_items_total(items)
+    invoice_id = @storage.create_invoice_and_return_id(customer_id, order_total[0])
+    product_ids.each do |id|
+      if id.to_s.to_i == id
+        @storage.add_invoice_item(invoice_id, id)
+      end
     end
+    session[:success] = "Invoice created."
+    redirect '/'
   end
-  redirect '/'
 end
 
 def invoice_totals(invoice)
@@ -235,10 +250,10 @@ helpers do
   def invoices_in_rows(invoices)
     invoices.map do |row|
       "<tr>
-      <th><a href='/invoice/#{row["id"]}/'> #{row["id"]}</a></th>
-      <th>#{row["customer"]}</th>
-      <th>#{row["items"]}</th>
-      <th>#{row["total"]}</th>
+      <th><a href='/invoice/#{row['id']}/'> #{row['id']}</a></th>
+      <th>#{row['customer']}</th>
+      <th>#{row['items']}</th>
+      <th>#{row['total']}</th>
       </tr>"
     end.join
   end
@@ -246,11 +261,11 @@ helpers do
   def display_invoice(invoice_data, invoice_totals)
     invoice_data.map.with_index do |line, idx|
       "<tr>
-      <th>#{idx+1}</th>
+      <th>#{idx + 1}</th>
       <th>#{line[2]}</th>
       <th>#{line[3]}</th>
       <tr>"
-    end.join << "<tr><th>Totals</th><th>#{invoice_totals[0]}</th><th>#{invoice_totals[1]}</th></th>"
+    end.join << "<tr><th>Totals</th><th>#{invoice_totals[0]}
+    </th><th>#{invoice_totals[1]}</th></th>"
   end
-
 end
