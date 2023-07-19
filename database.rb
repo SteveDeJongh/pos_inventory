@@ -48,6 +48,21 @@ class Database
     query(sql, name).values.flatten[0].to_i
   end
 
+  def find_customer_name(id)
+    sql = <<~SQL
+      SELECT name FROM customer WHERE id = $1;
+    SQL
+
+    query(sql, id)
+  end
+
+  def delete_customer(id)
+    sql = <<~SQL
+      DELETE FROM customer WHERE id = $1;
+    SQL
+    query(sql, id)
+  end
+
   def create_invoice_and_return_id(cust_id, total_cost)
     sql = <<~SQL
       INSERT INTO invoice (customer_id, total_cost)
@@ -70,8 +85,7 @@ class Database
     SQL
     sql2 = <<~SQL
     UPDATE item SET qty = (qty - 1),
-    qty_sold = (qty_sold + 1)
-    WHERE id = ($1);
+    qty_sold = (qty_sold + 1) WHERE id = ($1);
     SQL
 
     query(sql, invoice_id, item_id)
@@ -88,7 +102,7 @@ class Database
 
   def all_items_and_stock
     sql = <<~SQL
-      SELECT sku, cost, price FROM item;
+      SELECT sku, cost, price, qty FROM item;
     SQL
 
     result = {}
@@ -96,7 +110,7 @@ class Database
     query(sql).each do |item|
       result[item["sku"].to_i] = { cost: item["cost"].to_i,
                                    price: item["price"].to_i,
-                                   stock: item["stock"].to_i }
+                                   stock: item["qty"].to_i }
     end
     result
   end
@@ -137,7 +151,8 @@ class Database
   def all_invoices
     sql = <<~SQL
       SELECT invoice.id, min(customer.name) AS customer,
-        string_agg(item.description, ', ') AS items, sum(price) AS total
+        string_agg(item.description, ', ') AS items, sum(price) AS total,
+        min(customer.id)
         FROM invoice
         JOIN invoices_items ON invoices_items.invoice_id = invoice.id
         JOIN item ON invoices_items.item_id = item.id
@@ -178,7 +193,6 @@ class Database
     qty_sold = (qty_sold - 1)
     WHERE id = ($1);
     SQL
-    binding.pry
     item_ids.each do |id|
       query(sql, id)
     end

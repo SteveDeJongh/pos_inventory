@@ -18,6 +18,7 @@ require_relative "database"
 
 before do
   @storage = Database.new()
+  @all_item_info = @storage.all_items_and_stock
 end
 
 after do
@@ -69,13 +70,12 @@ def product_ids_array(items)
 end
 
 def new_invoice_items_total(items)
-  all_item_info = @storage.all_items_and_stock
   total_cost = 0
   total_retail = 0
   items.each do |sku|
     if sku.to_i.to_s == sku
-      total_cost += all_item_info[sku.to_i][:cost]
-      total_retail += all_item_info[sku.to_i][:price]
+      total_cost += @all_item_info[sku.to_i][:cost]
+      total_retail += @all_item_info[sku.to_i][:price]
     end
   end
   [total_cost, total_retail]
@@ -128,16 +128,16 @@ end
 
 post '/item/new' do
   existing_items = @storage.all_items.flatten
-  @data = [params[:sku].to_i, params[:name], params[:cost], params[:retail]]
+  @new_item = [params[:sku].to_i, params[:name], params[:cost], params[:retail]]
 
-  error = new_item_validation(@data, existing_items)
+  error = new_item_validation(@new_item, existing_items)
 
   if error
     session[:error] = error
     redirect '/item/new'
   else
-    @storage.add_item(@data)
-    session[:success] = "Product created for #{@data[2]}."
+    @storage.add_item(@new_item)
+    session[:success] = "Product created for #{@new_item[2]}."
     redirect '/'
   end
 end
@@ -221,6 +221,25 @@ get '/invoice/:id/delete' do
   redirect '/'
 end
 
+get '/customer/:id' do
+  @id = params[:id]
+  @name = @storage.find_customer_name(@id).first["name"]
+  erb :view_customer, layout: :layout
+end
+
+get '/customer/:id/delete' do
+  id = params[:id]
+  binding.pry
+  if @storage.all_invoices.column_values(4).include?(id.to_s)
+    session[:error] = "Customer has existing invoices."
+    redirect '/'
+  else
+    @storage.delete_customer(id)
+    session[:success] = "Customer #{id} has been deleted."
+    redirect '/'
+  end
+end
+
 ##### View Helpers #####
 
 helpers do
@@ -249,7 +268,7 @@ helpers do
   def customers_in_rows(customers)
     customers.values.map do |customer|
       "<tr>
-        <td>#{customer[0]}</td>
+        <td><a href='/customer/#{customer[0]}'>#{customer[0]}</a></td>
         <td>#{customer[1]}</td>
       </tr>"
     end.join
